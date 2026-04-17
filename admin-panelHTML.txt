@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Barangay Carmen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --barangay-green: #044f04d5;
+            --hover-green: #158000;
+            --logout-red: #c0392b;
+            --delete-red: #e74c3c;
+            --border-color: #ddd;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #fff; color: #333; overflow-x: hidden; }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-area img { width: 120px; height: 120px; }
+        .logo-area span { font-size: 60px; font-weight: bold; color: var(--barangay-green); }
+        .btn-logout { background: var(--logout-red); font-size: 25px; color: #fff; padding: 10px 25px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+
+        /* NAVIGATION TABS */
+        .tab-container { width: 95%; max-width: 1400px; margin: 30px auto; }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: -1px; }
+        .nav-tabs label {
+            padding: 15px 40px; background: #f1f1f1; cursor: pointer;
+            border-radius: 10px 10px 0 0; font-weight: bold; border: 1px solid var(--border-color);
+        }
+
+        input[type="radio"], .trigger-check { display: none; }
+
+        .content-section {
+            display: none; border: 1px solid var(--border-color);
+            padding: 40px; background: #fff; min-height: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        #tab1:checked ~ .nav-tabs label[for="tab1"],
+        #tab2:checked ~ .nav-tabs label[for="tab2"],
+        #tab3:checked ~ .nav-tabs label[for="tab3"] {
+            background: #fff; color: var(--barangay-green); border-top: 4px solid var(--barangay-green);
+        }
+
+        #tab1:checked ~ #view-history, #tab2:checked ~ #update-history, #tab3:checked ~ #delete-section { display: block; }
+
+        /* FORM DESIGN */
+        .form-header { text-align: center; font-size: 1.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 30px; border-bottom: 2px solid #333; }
+        .admin-form { max-width: 900px; margin: auto; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .form-group label { font-weight: bold; color: #444; }
+        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; }
+
+        /* BUTTONS */
+        .admin-btn { display: inline-block; background: var(--barangay-green); color: white; padding: 15px 60px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; text-align: center; width: 100%; }
+        .btn-delete { background: var(--delete-red); padding: 10px 20px; width: auto; font-size: 0.9rem; }
+
+        /* SUCCESS OVERLAY */
+        .success-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .success-card { background: white; padding: 50px; border-radius: 12px; text-align: center; border-top: 10px solid var(--barangay-green); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #success-trigger:checked ~ .success-overlay { display: flex; }
+
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { padding: 18px; text-align: left; border-bottom: 3px solid var(--barangay-green); background: #f8f8f8; }
+        td { padding: 18px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+    <input type="checkbox" id="success-trigger" class="trigger-check">
+
+    <header>
+        <div class="logo-area">
+            <img src="https://i.pinimg.com/originals/e6/72/27/e672277487ee51161fd2e9ac04a924d4.png" alt="Logo">
+            <span>Admin Panel</span>
+        </div>
+        <a href="main.html" class="btn-logout">Log Out</a>
+    </header>
+
+    <div class="success-overlay">
+        <div class="success-card">
+            <i class="fas fa-check-circle" style="font-size: 60px; color: var(--barangay-green);"></i>
+            <h2 style="margin-top: 20px; font-size: 2rem;">Record Updated Successfully</h2>
+            <p style="margin: 10px 0 25px; color: #666;">The patient history has been updated in the registry.</p>
+            <label for="success-trigger" class="admin-btn" style="width: auto; padding: 10px 40px;">Done</label>
+        </div>
+    </div>
+
+    <div class="tab-container">
+        <input type="radio" name="admin-tabs" id="tab1" checked>
+        <input type="radio" name="admin-tabs" id="tab2">
+        <input type="radio" name="admin-tabs" id="tab3">
+
+        <div class="nav-tabs">
+            <label for="tab1">VIEW ALL HISTORY</label>
+            <label for="tab2">UPDATE HISTORY</label>
+            <label for="tab3">DELETE HISTORY / PATIENT</label>
+        </div>
+
+        <div class="content-section" id="view-history">
+            <div class="form-header">Patient Registry History</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Diagnosis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Juan Dela Cruz</td>
+                        <td>2026-04-05</td>
+                        <td>Seasonal Flu</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-section" id="update-history">
+            <div class="form-header">Update Record Entry</div>
+            <form class="admin-form" id="updateForm" action="javascript:void(0);">
+                <div class="form-group">
+                    <label>Select Patient Record to Edit:</label>
+                    <select id="recordSelect">
+                        <option value="">-- Select Record --</option>
+                        <option value="1">Juan Dela Cruz - 2026-04-05</option>
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Update Diagnosis:</label>
+                        <input type="text" id="diagInput" placeholder="Enter diagnosis">
+                    </div>
+                    <div class="form-group">
+                        <label>Prescription Update:</label>
+                        <input type="text" id="prescInput" placeholder="Enter prescription">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Admin Notes:</label>
+                        <textarea id="notesInput" rows="4" placeholder="Enter notes"></textarea>
+                    </div>
+                </div>
+                <label for="success-trigger" class="admin-btn" onclick="clearUpdateForm()">Save Changes</label>
+            </form>
+        </div>
+
+        <div class="content-section" id="delete-section">
+            <div class="form-header">Delete Patient / History</div>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Review records carefully before deletion. Action cannot be undone in this session.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Record Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="row-juan">
+                        <td>Juan Dela Cruz</td>
+                        <td>2026-04-05</td>
+                        <td>
+                            <button class="admin-btn btn-delete" onclick="deletePatientRecord('row-juan', 'Juan Dela Cruz')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="row-maria">
+                        <td>Maria Clara</td>
+                        <td>2026-03-12</td>
+                        <td>
+                            <button class="admin-btn btn-delete" onclick="deletePatientRecord('row-maria', 'Maria Clara')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function clearUpdateForm() {
+            const form = document.getElementById('updateForm');
+            setTimeout(() => {
+                form.reset();
+                document.getElementById('recordSelect').value = "";
+                document.getElementById('diagInput').value = "";
+                document.getElementById('prescInput').value = "";
+                document.getElementById('notesInput').value = "";
+            }, 100);
+        }
+
+        // NEW DELETE FUNCTION
+        function deletePatientRecord(rowId, name) {
+            // This creates a pop-up confirmation
+            const confirmDelete = confirm("Are you sure you want to delete the record for " + name + "?");
+            
+            if (confirmDelete) {
+                const row = document.getElementById(rowId);
+                row.style.transition = "0.5s";
+                row.style.opacity = "0"; // Fades it out
+                
+                setTimeout(() => {
+                    row.remove(); // Removes it from the current view
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>

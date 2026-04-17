@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Panel - Barangay Carmen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --barangay-green: #044f04d5;
+            --hover-green: #158000;
+            --logout-red: #c0392b;
+            --border-color: #ddd;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #fff; color: #333; overflow-x: hidden; }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-area img { width: 120px; height: 120px; }
+        .logo-area span { font-size: 60px; font-weight: bold; color: var(--barangay-green); }
+        .btn-logout { background: var(--logout-red); font-size: 25px; color: #fff; padding: 10px 25px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+
+        /* NAVIGATION TABS */
+        .tab-container { width: 95%; max-width: 1400px; margin: 30px auto; }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: -1px; }
+        .nav-tabs label {
+            padding: 15px 40px; background: #f1f1f1; cursor: pointer;
+            border-radius: 10px 10px 0 0; font-weight: bold; border: 1px solid var(--border-color);
+        }
+        
+        input[type="radio"], .trigger-check, #illness-toggle { display: none; }
+
+        .content-section {
+            display: none; border: 1px solid var(--border-color);
+            padding: 40px; background: #fff; min-height: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        #tab1:checked ~ .nav-tabs label[for="tab1"],
+        #tab2:checked ~ .nav-tabs label[for="tab2"],
+        #tab3:checked ~ .nav-tabs label[for="tab3"] {
+            background: #fff; color: var(--barangay-green); border-top: 4px solid var(--barangay-green);
+        }
+
+        #tab1:checked ~ #add-content, #tab2:checked ~ #search-content, #tab3:checked ~ #view-content { display: block; }
+
+        /* FORM DESIGN */
+        .form-header { text-align: center; font-size: 1.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 30px; border-bottom: 2px solid #333; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 60px; }
+        .form-group { display: flex; align-items: center; margin-bottom: 10px; }
+        .form-group label { width: 220px; font-weight: bold; font-size: 1rem; color: #444; }
+        .form-group input, .form-group select { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; }
+
+        .section-header { grid-column: 1 / span 2; font-weight: bold; color: var(--barangay-green); border-bottom: 1px solid #eee; padding: 15px 0; margin-top: 20px; text-transform: uppercase; }
+
+        /* ILLNESS TOGGLE FEEDBACK */
+        .illness-btn {
+            display: inline-block; padding: 10px 20px; background: #eee;
+            border: 1px solid var(--border-color); border-radius: 4px;
+            cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .illness-btn::after { content: "Click if YES"; }
+        
+        #illness-toggle:checked + .illness-btn { background: var(--barangay-green); color: white; border-color: var(--barangay-green); }
+        #illness-toggle:checked + .illness-btn::after { content: "ILLNESS SELECTED"; }
+
+        .illness-input-box { display: none; grid-column: 1 / span 2; margin-top: 10px; }
+        #illness-toggle:checked ~ .illness-input-box { display: flex; align-items: center; }
+
+        /* SUCCESS OVERLAY */
+        .success-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .success-card { background: white; padding: 50px; border-radius: 12px; text-align: center; border-top: 10px solid var(--barangay-green); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #success-trigger:checked ~ .success-overlay { display: flex; }
+
+        .save-record-btn { display: inline-block; background: var(--barangay-green); color: white; padding: 15px 60px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 40px; text-align: center; }
+    </style>
+</head>
+
+
+<!-- This file is the staff panel interface for adding, searching, and viewing patient records. It includes a header with logo and logout button, navigation tabs for different sections, and forms for inputting patient data. A success overlay appears when a new patient is added. -->
+<body>
+
+    <input type="checkbox" id="success-trigger" class="trigger-check">
+
+    <header>
+        <div class="logo-area">
+            <img src="https://i.pinimg.com/originals/e6/72/27/e672277487ee51161fd2e9ac04a924d4.png" alt="Logo">
+            <span>Staff Panel</span>
+        </div>
+        <a href="main.html" class="btn-logout">Log Out</a>
+    </header>
+
+    <div class="success-overlay">
+        <div class="success-card">
+            <i class="fas fa-check-circle" style="font-size: 60px; color: var(--barangay-green);"></i>
+            <h2 style="margin-top: 20px; font-size: 2rem;">New patient added successfully</h2>
+            <p style="margin: 10px 0 25px; color: #666;">The record has been updated in the registry.</p>
+            <label for="success-trigger" class="save-record-btn" style="margin-top: 0;">Done</label>
+        </div>
+    </div>
+
+    <div class="tab-container">
+        <input type="radio" name="staff-tabs" id="tab1" checked>
+        <input type="radio" name="staff-tabs" id="tab2">
+        <input type="radio" name="staff-tabs" id="tab3">
+
+        <div class="nav-tabs">
+            <label for="tab1">ADD PATIENT</label>
+            <label for="tab2">SEARCH PATIENT</label>
+            <label for="tab3">VIEW ALL PATIENTS</label>
+        </div>
+
+        <div class="content-section" id="add-content">
+            <div class="form-header">Add New Patient</div>
+            <form id="patientForm" action="javascript:void(0);">
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label>Full Name:</label>
+                        <input type="text" 
+                               oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '');" 
+                               placeholder="Last Name, First Name, M.I.">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Age:</label>
+                        <input type="number" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender:</label>
+                        <select>
+                            <option>--Select--</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact (11 digits):</label>
+                        <input type="text" 
+                               maxlength="11" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
+                               placeholder="09xxxxxxxxx" 
+                               inputmode="numeric">
+                    </div>
+
+                    <div class="section-header">Full Address</div>
+                    
+                    <div class="form-group"><label>Street:</label><input type="text"></div>
+                    <div class="form-group"><label>Subdivision/Village:</label><input type="text"></div>
+                    <div class="form-group"><label>Barangay:</label><input type="text" value="Carmen"></div>
+                    <div class="form-group"><label>City/Municipality:</label><input type="text" value="Cagayan de Oro"></div>
+                    
+                    <div class="form-group">
+                        <label>Postal Code:</label>
+                        <input type="text" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
+                               value="9000" 
+                               inputmode="numeric">
+                    </div>
+                    
+                    <div class="form-group"><label>Province:</label><input type="text" value="Misamis Oriental"></div>
+
+                    <div class="section-header">Medical Records</div>
+                    
+                    <div class="form-group" style="grid-column: 1 / span 2;">
+                        <label>Existing Illness?</label>
+                        <div style="flex:1">
+                            <input type="checkbox" id="illness-toggle">
+                            <label for="illness-toggle" class="illness-btn"></label>
+                            
+                            <div class="illness-input-box">
+                                <label style="width: 220px;">Specify Illness:</label>
+                                <input type="text" placeholder="Enter illness details">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group"><label>Smoker?</label><select><option>No</option><option>Yes</option></select></div>
+                    <div class="form-group"><label>Drinks Alcohol?</label><select><option>No</option><option>Yes</option></select></div>
+                    
+                    <div class="form-group">
+                        <label>Temperature (°C):</label>
+                        <input type="text" 
+                               oninput="this.value = this.value.replace(/[^0-9.]/g, '');" 
+                               placeholder="36.5" 
+                               inputmode="decimal">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Systolic (Upper):</label>
+                        <input type="text" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
+                               inputmode="numeric">
+                    </div>
+                    <div class="form-group">
+                        <label>Diastolic (Lower):</label>
+                        <input type="text" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '');" 
+                               inputmode="numeric">
+                    </div>
+                </div>
+
+                <label for="success-trigger" class="save-record-btn" onclick="clearPatientForm()">Save Record</label>
+            </form>
+        </div>
+
+        <div class="content-section" id="search-content">
+            <div class="form-header">Search Patient</div>
+            <div style="max-width: 800px; margin: auto; display: flex; gap: 15px;">
+                
+                <input type="text" id="patientSearchInput" placeholder="Search by name or contact..." style="flex:1; padding: 15px; border: 1px solid #ddd;">
+                
+                <button class="save-record-btn" 
+                        style="margin-top:0" 
+                        onclick="document.getElementById('patientSearchInput').value = ''">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <!-- The view content section displays a table of all patients in the registry. The search and update sections allow staff to find specific records and make edits. The delete section will list records with options to remove them from the system. -->
+        <div class="content-section" id="view-content">
+            <div class="form-header">Patient Registry</div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8f8f8;">
+                    <tr>
+                        <th style="padding: 18px; text-align: left; border-bottom: 3px solid var(--barangay-green);">Name</th>
+                        <th style="padding: 18px; text-align: left; border-bottom: 3px solid var(--barangay-green);">Age</th>
+                        <th style="padding: 18px; text-align: left; border-bottom: 3px solid var(--barangay-green);">Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="padding: 18px; border-bottom: 1px solid #eee;">Juan Dela Cruz</td><td style="padding: 18px; border-bottom: 1px solid #eee;">45</td><td style="padding: 18px; border-bottom: 1px solid #eee;">09123456789</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- The view content section displays a table of all patients in the registry. The search and update sections allow staff to find specific records and make edits. The delete section will list records with options to remove them from the system. -->
+    <script>
+        function clearPatientForm() {
+            const form = document.getElementById('patientForm');
+            
+            // Wait 100ms so the CSS modal triggers before the fields disappear
+            setTimeout(() => {
+                form.reset();
+                
+                // Manually uncheck the illness toggle so the extra input hides
+                const illnessToggle = document.getElementById('illness-toggle');
+                if (illnessToggle) {
+                    illnessToggle.checked = false;
+                }
+            }, 100);
+        }
+    </script>
+
+</body>
+</html>
